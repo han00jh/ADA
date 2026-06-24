@@ -514,3 +514,20 @@ bash scripts/dev/end_of_day.sh   # 영역검증 → pytest → rebase → push �
 > - v2.4 (2026-06) — ReportArchitectAgent 추가(28 에이전트) · OAuth 로그인(migration 005) · 시계열 모델 확장(통계+신경망+TFT) · 이상탐지 COPOD/ECOD/HBOS · 다국어 임베딩 · Celery Beat 주기작업 · Cowork 폴링 30분 전환
 > - **v2.5 (2026-06-17)** — **운영 콘솔(관리자 실시간 데이터 저장 감시) 신규**: 스토리지 신호등(PostgreSQL/MinIO/Redis/MLflow/백업) · 30테이블 8카테고리 분류 · DB 전수 인벤토리 · 7일 트렌드 · `/admin/storage/overview` · **백업 카탈로그 기록**(Pull 1일 3회 → 콘솔 🟢) · **serving 부활**(모델 추론+자동 오류) · **DB 감사기록 활성화**(agent_runs/models/outputs) · 자가학습 레이어 활성화 · 산출물 재진행 교체 보장 · 진행바 UI·타이핑 속도 개선 · 전 카테고리 분석 깊이 보완(입력 견고화·튜닝·자동 피처선택·EDA) · 로그인 유지(토큰 재주입·replaceState) 다수 수정
 > - **v2.6 (2026-06-19)** — **자가치유 가시화 · 신뢰성 · 무중단 운영**: 운영 콘솔에 **자가치유·자기학습 활용 현황 신설**(저장→학습→자동수정이 실제로 활용·자동수정에 쓰인 누적·24h 수치 + 최근 자동수정 이벤트: 언제·어떤 단계/오류·누가·commit·결과) · **24시간 적재 트렌드** 신설(`trends_24h`) · 헤더(탭 총제목) 분리·강조 · 섹션 설명·항목별 저장경로 · 30테이블 "어떤 데이터" 설명 · **멈춤(hang)·미완료 작업 watchdog + soft-timeout 캐치**(멈춤도 `failure_logs` 자동 기록 → 자가치유 루프 입력 복구) · **로그인 유지(JWT localStorage 보관·복원)** — 강력 새로고침에도 세션 유지 + 우측 상단 **공통 프로필 메뉴·로그아웃** · **무중단 배포**(deploy.yml: nginx 강제재시작 제거→graceful `-s reload` · frontend 무재생성(라이브 마운트 핫리로드) · `--wait` 헬스 게이팅 · beat 재기동) · **로컬 백업 영구 저장**(자동 삭제 제거, 필요시 수동) · **워커 Ollama 접근**(`extra_hosts`/`OLLAMA_BASE_URL`) — 도메인 G1 멈춤 수정 · serving 빌드 내성(`--timeout`/`--retries`) · 분석 3단계(G3) 진행 버튼 수정
+
+
+---
+
+## 👤 내 역할 — 한정현 (jh)
+
+**담당: 정형 데이터(Tabular) 분석 버티컬** · `agents/handlers/tabular/` · `pipelines/tabular_ml/` · `pipelines/tabular_dl/` (브랜치 `feat/jh`)
+
+28개 에이전트로 구성된 AutoAI 파이프라인에서 **정형 ML·정형 DL 두 개 분석 카테고리**의 핸들러와 모델 파이프라인을 설계·구현했습니다.
+
+- **정형 ML 파이프라인** — RandomForest · XGBoost · LightGBM · CatBoost + 선형 baseline(LogisticRegression / Ridge) 등록 및 자동 선택·검증
+- **정형 DL 파이프라인** — TabTransformer · FT-Transformer · TabPFN + MLP baseline (CPU / 소형 GPU 환경 최적화)
+- **tabular 핸들러 전 단계** — 데이터 프로파일링 · 전처리 · EDA · 모델 평가 · 인사이트까지 카테고리 전용 핸들러 구현
+- **모델 신뢰성 모듈** — 확률 보정(calibration) · 진단(diagnostics) · 임계값 최적화(threshold_optimizer) · 설명가능성(explainability)
+- CODEOWNERS · pre-commit · CI 3중 영역 가드 하에서 `feat/jh` 브랜치로 병렬 협업
+
+**기술 스택**: Python · scikit-learn · XGBoost · LightGBM · CatBoost · PyTorch(Tabular Transformer) · SHAP · Optuna
